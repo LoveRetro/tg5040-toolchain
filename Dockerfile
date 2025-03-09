@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:buster-slim
 ENV DEBIAN_FRONTEND noninteractive
 
 ENV TZ=America/New_York
@@ -33,6 +33,8 @@ RUN apt-get -y update && apt-get -y install \
     libfuzzy-dev \
     python3 \
     python3-pip \
+    gcc-arm-linux-gnueabihf \
+    g++-arm-linux-gnueabihf \
   && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /root/workspace
@@ -43,8 +45,8 @@ RUN ./setup-toolchain.sh
 RUN cat setup-env.sh >> .bashrc
 
 # Upgrade pip and install additional Python packages
-RUN python3 -m pip install --upgrade pip \
-    && python3 -m pip install numpy scipy scikit-learn transformers fuzzywuzzy[speedup] lxml pyinstaller
+# RUN python3 -m pip install --upgrade pip \
+#     && python3 -m pip install numpy scipy scikit-learn transformers fuzzywuzzy[speedup] lxml pyinstaller
 
 VOLUME /root/workspace
 WORKDIR /root/workspace

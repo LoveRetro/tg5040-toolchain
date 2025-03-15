@@ -35,6 +35,7 @@ RUN apt-get -y update && apt-get -y install \
     python3-pip \
     gcc-arm-linux-gnueabihf \
     g++-arm-linux-gnueabihf \
+    libbluetooth-dev \
   && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /root/workspace

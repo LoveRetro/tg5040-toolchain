@@ -38,6 +38,9 @@ RUN apt-get -y update && apt-get -y install \
     libbluetooth-dev \
   && rm -rf /var/lib/apt/lists/*
 
+RUN dpkg --add-architecture arm64
+RUN apt update
+RUN apt-get -y install libsamplerate-dev:arm64 libsdl2-dev:arm64
 RUN mkdir -p /root/workspace
 WORKDIR /root
 

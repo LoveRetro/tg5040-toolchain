@@ -27,4 +27,9 @@ else
 	tar xf $SYSROOT_TAR.tgz
 	rsync -a --ignore-existing ./usr/ /opt/$TOOLCHAIN_NAME/$TOOLCHAIN_NAME/libc/usr/
 	rm -rf ./usr $SYSROOT_TAR.tgz
+    
+    # make sure cross compile libs are picked up by mingw-compiled toolchains
+    mkdir -p /opt/$TOOLCHAIN_NAME/$TOOLCHAIN_NAME/libc/etc/
+    cat /etc/ld.so.conf.d/$TOOLCHAIN_NAME.conf > /opt/$TOOLCHAIN_NAME/$TOOLCHAIN_NAME/libc/etc/ld.so.conf
+    cat /etc/ld.so.conf.d/libc.conf >> /opt/$TOOLCHAIN_NAME/$TOOLCHAIN_NAME/libc/etc/ld.so.conf
 fi

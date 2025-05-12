@@ -18,6 +18,10 @@ jobs:
       contents: read
       packages: write
 
+    env:
+      IMAGE_NAME: ${{ github.event.repository.name }}
+      IMAGE_OWNER: ${{ github.repository_owner }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -38,9 +42,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image (ARM64)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/arm64
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+        run: |
+          IMAGE_REPO="ghcr.io/$(echo $IMAGE_OWNER | tr '[:upper:]' '[:lower:]')/$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')"
+          docker buildx build \
+            --platform linux/arm64 \
+            --push \
+            -t $IMAGE_REPO:latest \
+            .

@@ -10,6 +10,8 @@ on:
       - '**/*.py'
       - .github/workflows/docker-build.yml
 
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-24.04-arm

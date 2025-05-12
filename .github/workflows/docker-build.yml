@@ -12,11 +12,7 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        architecture: [arm64]
-
-    runs-on: [self-hosted, linux, ${{ matrix.architecture }}]
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -26,7 +22,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up QEMU
+      - name: Set up QEMU (for cross-platform builds)
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64

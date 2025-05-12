@@ -1,4 +1,4 @@
-name: Build and Push Docker image (ARM64)
+name: Build and Push Docker image (ARM64 native)
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
 
     permissions:
       contents: read
@@ -26,14 +26,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up QEMU (for cross-platform builds)
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -41,11 +33,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image (ARM64)
+      - name: Build and push Docker image (native ARM64)
         run: |
           IMAGE_REPO="ghcr.io/$(echo $IMAGE_OWNER | tr '[:upper:]' '[:lower:]')/$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')"
-          docker buildx build \
-            --platform linux/arm64 \
-            --push \
-            -t $IMAGE_REPO:latest \
-            .
+          docker build -t $IMAGE_REPO:latest .
+          docker push $IMAGE_REPO:latest

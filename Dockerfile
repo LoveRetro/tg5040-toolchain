@@ -3,8 +3,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
+RUN dpkg --add-architecture arm64
 RUN apt-get -y update && apt-get -y install \
+    gcc-aarch64-linux-gnu \
+    g++-aarch64-linux-gnu \
+    pkg-config \
+    crossbuild-essential-arm64 \
     bc \
     build-essential \
     bzip2 \
@@ -14,14 +18,15 @@ RUN apt-get -y update && apt-get -y install \
     cpio \
     git \
     libncurses5-dev \
-    libsamplerate0-dev \
-    #libzip-dev \
+    libsamplerate0-dev:arm64 \
+    # we need this one for cores to compile..
+    libzip-dev:arm64 \
 # 5.2 or newer for lzma/xz in libzip
-    liblzma-dev \ 
+    liblzma-dev:arm64 \ 
 # zstd support for libzip
-    libzstd-dev \
+    libzstd-dev:arm64 \
 # bz2 support for libzip
-    libbz2-dev \
+    libbz2-dev:arm64 \
 # zlib for libzip
     zlib1g-dev \
   # deprecated, but also supplied by the SDK
@@ -49,14 +54,18 @@ RUN mkdir -p /root/workspace
 WORKDIR /root
 
 COPY support .
-# build newer libzip from source
-RUN ./build-libzip.sh
+
 
 RUN ./setup-toolchain.sh
 RUN cat setup-env.sh >> .bashrc
 
-#ENV LD_PREFIX=/usr/aarch64-linux-gnu \
-#      PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
+ENV LD_PREFIX=/usr/aarch64-linux-gnu \
+    PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig \ 
+    PKG_CONFIG_LIBDIR=/root/builds/libzip/build/lib:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:/opt/aarch64-linux-gnu/aarch64-linux-gnu/lib/pkgconfig
+
+
+# build newer libzip from source
+RUN ./build-libzip.sh
 
 VOLUME /root/workspace
 WORKDIR /root/workspace

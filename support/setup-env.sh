@@ -8,4 +8,5 @@ else
 	export CROSS_COMPILE=/opt/${BUILD_ARCH}/bin/${BUILD_ARCH}-
 	export PREFIX=/opt/${BUILD_ARCH}/${BUILD_ARCH}/libc/usr
 fi
+export PREFIX_LOCAL=/opt/nextui
 export UNION_PLATFORM=tg5040

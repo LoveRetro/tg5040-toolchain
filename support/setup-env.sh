@@ -10,3 +10,7 @@ else
 fi
 export PREFIX_LOCAL=/opt/nextui
 export UNION_PLATFORM=tg5040
+
+# just to make sure
+mkdir -p $PREFIX_LOCAL/include
+mkdir -p $PREFIX_LOCAL/lib

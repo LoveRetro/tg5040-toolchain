@@ -52,11 +52,19 @@ RUN apt-get -y update && apt-get -y install \
 RUN mkdir -p /root/workspace
 WORKDIR /root
 
+# stuff
 COPY support .
-# build newer libzip from source
-RUN ./build-libzip.sh
 
 RUN ./setup-toolchain.sh
+
+# build newer libzip from source
+RUN mkdir -p /root/builds
+RUN ./build-libzip.sh > /root/builds/libzip.log
+
+# build autotools (for bluez)
+RUN ./build-autotools.sh > /root/builds/autotools.log
+RUN ./build-bluez.sh > /root/builds/bluez.log
+
 RUN cat setup-env.sh >> .bashrc
 
 #ENV LD_PREFIX=/usr/aarch64-linux-gnu \

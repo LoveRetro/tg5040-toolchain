@@ -1,76 +1,69 @@
-FROM debian:buster-slim
-ENV DEBIAN_FRONTEND=noninteractive
+FROM ubuntu:24.04
 
-ENV TZ=America/New_York
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-RUN echo "deb [trusted=yes] http://archive.debian.org/debian buster main non-free contrib" > /etc/apt/sources.list
-RUN echo "deb-src [trusted=yes] http://archive.debian.org/debian buster main non-free contrib" >> /etc/apt/sources.list
-RUN echo "deb [trusted=yes] http://archive.debian.org/debian-security buster/updates main non-free contrib" >> /etc/apt/sources.list
-
-RUN apt-get -y update && apt-get -y install \
-    bc \
+# Install base build tools and dependencies
+RUN apt-get update && apt-get install -y \
     build-essential \
-    bzip2 \
-    bzr \
     cmake \
-    cmake-curses-gui \
-    cpio \
-    git \
-    libncurses5-dev \
-    libsamplerate0-dev \
-    #libzip-dev \
-# 5.2 or newer for lzma/xz in libzip
-    liblzma-dev \ 
-# zstd support for libzip
-    libzstd-dev \
-# bz2 support for libzip
-    libbz2-dev \
-# zlib for libzip
-    zlib1g-dev \
-  # deprecated, but also supplied by the SDK
-#    libsdl1.2-dev \
-#    libsdl-image1.2-dev \
-#    libsdl-ttf2.0-dev \
-# supplied by SDK
-#    libsdl2-dev \
-#    libsdl2-image-dev \
-#    libsdl2-ttf-dev \
-#    libsqlite3-dev \
-#    libbluetooth-dev \
-    # For libwpa_client.a
-    #libwpa-client-dev \
-    locales \
-    make \
-    rsync \
-    scons \
-    tree \
+    ninja-build \
+    autotools-dev \
+    autoconf \
+    automake \
+    libtool \
+    m4 \
+    pkg-config \
     unzip \
     wget \
-  && rm -rf /var/lib/apt/lists/*
-  
-RUN mkdir -p /root/workspace
-WORKDIR /root
+    git \
+    python3 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# stuff
-COPY support .
+# Define variables
+ENV TOOLCHAIN_DIR=/opt/toolchain
+ENV SYSROOT_DIR=/opt/sdk
+ENV SDK_TAR=SDK_usr_tg5040_a133p.tgz
+ENV SDK_URL=https://github.com/trimui/toolchain_sdk_smartpro/releases/download/20231018/${SDK_TAR}
 
-RUN ./setup-toolchain.sh
+# Download the appropriate cross toolchain based on host arch
+RUN mkdir -p ${TOOLCHAIN_DIR} && \
+    ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        TOOLCHAIN_URL=https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.03/binrel/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu.tar.xz; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+        TOOLCHAIN_URL=https://github.com/frysee/gcc-arm-8.3-aarch64/releases/download/0.0.3/gcc-arm-8.3-2019.03-aarch64-arm-linux-gnueabihf.tar.xz; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi && \
+    wget -q $TOOLCHAIN_URL -O /tmp/toolchain.tar.xz && \
+    tar -xf /tmp/toolchain.tar.xz -C ${TOOLCHAIN_DIR} --strip-components=1 && \
+    rm /tmp/toolchain.tar.xz
 
-# build newer libzip from source
-RUN mkdir -p /root/builds
-RUN ./build-libzip.sh > /root/builds/libzip.log
+# Download and extract the SDK sysroot
+RUN mkdir -p ${SYSROOT_DIR} && \
+    wget -q ${SDK_URL} -O /tmp/${SDK_TAR} && \
+    tar -xzf /tmp/${SDK_TAR} -C ${SYSROOT_DIR} && \
+    rm /tmp/${SDK_TAR}
 
-# build autotools (for bluez)
-RUN ./build-autotools.sh > /root/builds/autotools.log
-RUN ./build-bluez.sh > /root/builds/bluez.log
+# Environment variables for build
+ENV PATH=${TOOLCHAIN_DIR}/bin:$PATH
+ENV CROSS_COMPILE=aarch64-linux-gnu-
+ENV CC=${CROSS_COMPILE}gcc
+ENV CXX=${CROSS_COMPILE}g++
+ENV SYSROOT=${SYSROOT_DIR}
+ENV CFLAGS="--sysroot=${SYSROOT}"
+ENV CXXFLAGS="--sysroot=${SYSROOT}"
+ENV LDFLAGS="--sysroot=${SYSROOT}"
 
-RUN cat setup-env.sh >> .bashrc
+# Create CMake toolchain file
+COPY toolchain-aarch64.cmake /workspace/
 
-#ENV LD_PREFIX=/usr/aarch64-linux-gnu \
-#      PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
+# Build additional libraries like libzip
+#RUN git clone https://github.com/nih-at/libzip.git /tmp/libzip && \
+#    mkdir /tmp/libzip/build && cd /tmp/libzip/build && \
+#    cmake .. \
+#        -DCMAKE_TOOLCHAIN_FILE=/workspace/toolchain-aarch64.cmake \
+#        -DCMAKE_INSTALL_PREFIX=$SYSROOT/usr \
+#        -DCMAKE_BUILD_TYPE=Release && \
+#    make -j$(nproc) && make install
 
-VOLUME /root/workspace
-WORKDIR /root/workspace
-
-CMD ["/bin/bash"]
+WORKDIR /workspace

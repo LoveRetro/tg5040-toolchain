@@ -1,7 +1,7 @@
 .PHONY: shell
 .PHONY: clean
 
-TOOLCHAIN_NAME=tg5040-toolchain
+TOOLCHAIN_NAME=tg5040-modernize
 IMAGE_REPO=ghcr.io/loveretro
 IMAGE_NAME=${IMAGE_REPO}/${TOOLCHAIN_NAME}
 WORKSPACE_DIR := $(shell pwd)/workspace

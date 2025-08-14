@@ -52,7 +52,7 @@ git clone --depth 1 --branch v4.1.0 https://github.com/arkq/bluez-alsa.git /tmp/
         --host=$CROSS_TRIPLE \
         --prefix=$SYSROOT/usr \
         --with-sysroot=$SYSROOT \
-        --with-alsaconfdir=/usr/share/alsa/alsa.conf.d && \
+        --with-alsaconfdir=$SYSROOT/usr/share/alsa/alsa.conf.d && \
     make -j$(nproc) && make install && \
     cd /tmp && rm -rf /tmp/bluez-alsa
 

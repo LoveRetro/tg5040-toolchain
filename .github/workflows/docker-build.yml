@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - main
-      - docker-ci
-    paths:
-      - Dockerfile
-      - '**/*.py'
-      - .github/workflows/docker-build.yml
   pull_request: {}
 
   workflow_dispatch:

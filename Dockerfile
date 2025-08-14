@@ -91,6 +91,7 @@ ENV PKG_CONFIG_PATH=${SYSROOT}/usr/lib/pkgconfig:${SYSROOT}/usr/share/pkgconfig
 COPY support .
 RUN ./build-libzip.sh
 RUN ./build-bluez.sh
+RUN ./build-libsamplerate.sh
 
 # TODO: migrate 
 # old               new

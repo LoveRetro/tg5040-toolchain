@@ -16,7 +16,6 @@ git clone --depth 1 --branch 5.78 https://github.com/bluez/bluez.git /tmp/bluez 
         --disable-systemd \
         --disable-udev \
         --disable-cups \
-        --disable-obex \
         --disable-manpages \
         --with-sysroot=$SYSROOT && \
     make -j$(nproc) && make install && \

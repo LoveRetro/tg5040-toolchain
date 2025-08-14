@@ -13,6 +13,9 @@ git clone --depth 1 --branch 5.78 https://github.com/bluez/bluez.git /tmp/bluez 
     ./configure \
         --host=$CROSS_TRIPLE \
         --prefix=$SYSROOT/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --enable-library \
         --disable-systemd \
         --disable-udev \
         --disable-cups \

@@ -93,14 +93,10 @@ RUN ./build-libzip.sh
 RUN ./build-bluez.sh
 RUN ./build-libsamplerate.sh
 
-# TODO: migrate 
-# old               new
-# BUILD_ARCH     -> CROSS_TRIPLE
-ENV BUILD_ARCH=${CROSS_TRIPLE}
-# PREFIX_LOCAL   -> do we still need it?
-ENV PREFIX_LOCAL=/opt/nextui
-# UNION_PLATFORM -> move to Dockerfile
+
 ENV UNION_PLATFORM=tg5040
+# do we still need this?
+ENV PREFIX_LOCAL=/opt/nextui
 
 # just to make sure
 RUN mkdir -p ${PREFIX_LOCAL}/include

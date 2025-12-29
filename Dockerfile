@@ -92,7 +92,7 @@ COPY support .
 RUN ./build-libzip.sh
 RUN ./build-bluez.sh
 RUN ./build-libsamplerate.sh
-
+RUN ./build-lz4.sh
 
 ENV UNION_PLATFORM=tg5040
 # do we still need this?

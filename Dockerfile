@@ -103,6 +103,6 @@ RUN mkdir -p ${PREFIX_LOCAL}/include
 RUN mkdir -p ${PREFIX_LOCAL}/lib
 
 VOLUME /root/workspace
-WORKDIR /workspace
+WORKDIR /root/workspace
 
 CMD ["/bin/bash"]

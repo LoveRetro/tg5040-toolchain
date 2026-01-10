@@ -38,22 +38,15 @@ RUN mkdir -p ${TOOLCHAIN_DIR} && \
         echo "Unsupported architecture: $ARCH" && exit 1; \
     fi && \
     TOOLCHAIN_URL=${TOOLCHAIN_REPO}/releases/download/${TOOLCHAIN_BUILD}/${TOOLCHAIN_ARCHIVE}; \
-    wget -q $TOOLCHAIN_URL -O /tmp/toolchain.tar.xz && \
-    tar -xf /tmp/toolchain.tar.xz -C ${TOOLCHAIN_DIR} --strip-components=2 && \
-    rm /tmp/toolchain.tar.xz
+    wget -qO - $TOOLCHAIN_URL | tar -xJ -C ${TOOLCHAIN_DIR} --strip-components=2
 
 ENV CROSS_TRIPLE=aarch64-nextui-linux-gnu
 ENV CROSS_ROOT=${TOOLCHAIN_DIR}
 ENV SYSROOT=${CROSS_ROOT}/${CROSS_TRIPLE}/libc
 
 # Download and extract the SDK sysroot
-ENV SDK_TAR=SDK_usr_tg5040_a133p.tgz
-ENV SDK_URL=https://github.com/trimui/toolchain_sdk_smartpro/releases/download/20231018/${SDK_TAR}
-
-RUN mkdir -p ${SYSROOT} && \
-wget -q ${SDK_URL} -O /tmp/${SDK_TAR} && \
-tar -xzf /tmp/${SDK_TAR} -C ${SYSROOT} && \
-rm /tmp/${SDK_TAR}
+ARG SDK_URL=https://github.com/trimui/toolchain_sdk_smartpro/releases/download/20231018/SDK_usr_tg5040_a133p.tgz
+RUN mkdir -p ${SYSROOT} && wget -qO - ${SDK_URL} | tar -xzC ${SYSROOT}
 
 ENV AS=${CROSS_ROOT}/bin/${CROSS_TRIPLE}-as \
     AR=${CROSS_ROOT}/bin/${CROSS_TRIPLE}-ar \
@@ -73,8 +66,8 @@ ENV ARCH=arm64
 #ENV QEMU_SET_ENV="LD_LIBRARY_PATH=${CROSS_ROOT}/lib:${QEMU_LD_PREFIX}"
 
 # CMake toolchain
-COPY toolchain-aarch64.cmake ${CROSS_ROOT}/Toolchain.cmake
 ENV CMAKE_TOOLCHAIN_FILE=${CROSS_ROOT}/Toolchain.cmake
+COPY toolchain-aarch64.cmake ${CMAKE_TOOLCHAIN_FILE}
 
 #ENV PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
 ENV PKG_CONFIG_SYSROOT_DIR=${SYSROOT}
@@ -97,10 +90,7 @@ ENV UNION_PLATFORM=tg5040
 ENV PREFIX_LOCAL=/opt/nextui
 
 # just to make sure
-RUN mkdir -p ${PREFIX_LOCAL}/include
-RUN mkdir -p ${PREFIX_LOCAL}/lib
+RUN mkdir -p ${PREFIX_LOCAL}/include ${PREFIX_LOCAL}/lib
 
 VOLUME /root/workspace
 WORKDIR /root/workspace
-
-CMD ["/bin/bash"]

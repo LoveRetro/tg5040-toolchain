@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM docker.io/library/ubuntu:24.04
 
 # Install base build tools and dependencies
 RUN apt-get update && apt-get install -y \

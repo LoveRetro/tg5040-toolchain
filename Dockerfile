@@ -23,8 +23,6 @@ RUN apt-get update && apt-get install -y \
     vim \
     && rm -rf /var/lib/apt/lists/*
 
-COPY support /root/support
-
 ENV TOOLCHAIN_DIR=/opt/aarch64-nextui-linux-gnu
 
 # Download the appropriate cross toolchain based on host arch
@@ -88,11 +86,11 @@ ENV PKG_CONFIG_PATH=${SYSROOT}/usr/lib/pkgconfig:${SYSROOT}/usr/share/pkgconfig
 #ENV LDFLAGS="--sysroot=${SYSROOT} -L\"$SYSROOT/lib\" -L\"$SYSROOT/libc/usr/lib\""
 
 # stuff and extra libs
-COPY support .
-RUN ./build-libzip.sh
-RUN ./build-bluez.sh
-RUN ./build-libsamplerate.sh
-RUN ./build-lz4.sh
+COPY support /root/support
+RUN /root/support/build-libzip.sh
+RUN /root/support/build-bluez.sh
+RUN /root/support/build-libsamplerate.sh
+RUN /root/support/build-lz4.sh
 
 ENV UNION_PLATFORM=tg5040
 # do we still need this?
